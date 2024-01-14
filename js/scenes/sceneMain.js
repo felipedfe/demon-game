@@ -60,6 +60,14 @@ class SceneMain extends Phaser.Scene {
       repeat: 1,
     });
 
+    // Animação do demon sendo acertado (congelado)
+    this.anims.create({
+      key: 'eternalHit',
+      frames: this.anims.generateFrameNumbers('demon-sprites-bg', { start: 2, end: 2 }),
+      frameRate: 1,
+      repeat: 10,
+    });
+
     // Animação de tela piscando
     this.anims.create({
       key: 'flash',
@@ -127,12 +135,13 @@ class SceneMain extends Phaser.Scene {
   };
 
   restoreBlinkAnimation = () => {
-    this.target.stop('hit')
+    // this.target.stop('hit');
     this.target.play('blink');
+    console.log(this.target)
   };
 
   hitTarget = (target, arrow) => {
-    this.target.stop('blink');
+    // this.target.stop('blink');
     this.target.play('hit');
 
     this.time.addEvent({ delay: 300, callback: this.restoreBlinkAnimation, callbackScope: this, loop: false });
@@ -209,10 +218,32 @@ class SceneMain extends Phaser.Scene {
     // quando o alvo é destruído
     if (this.targetLife < 0) {
       console.log("FIM!")
-      this.targetLife = 0;
+
+      // para movimento do target
+      this.target.setVelocityX(0);
+
+      // Para as animações
+      // this.target.anims.stop();
+      // console.log("anims: ", this.anims.anims.entries.blink.paused = true);
+      // console.log("anims: ", this.anims.anims.entries.blink.repeat = 1);
+      // this.anims.anims.entries.blink.paused = true;
+      // console.log("--->", this.anims.anims.entries.blink);
+      // this.target.stop('blink');
+      if (this.anims.anims.entries.blink) {
+        this.anims.anims.entries.blink.destroy();
+      }
+      this.target.play("eternalHit");
+      // console.log("anims: ",this.anims.anims.entries);
+      this.time.addEvent({ delay: 2100, callback: () => {this.target.alpha = 0}, callbackScope: this, loop: false });
+      // console.log("anims: ", this.anims.anims.entries.hit.paused = true);
+
+      // Desativa o grupo de flechas
+      this.input.off("pointerdown", this.addArrow);
 
       this.flash.alpha = 1;
       this.flash.play("flash");
+      this.targetLife = 0;
+      console.log(this.targetLife)
     }
 
     // FIM UPDATE
