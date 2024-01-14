@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="user-scalable=0, initial-scale=1,minimum-scale=1, maximum-scale=1, width=device-width, minimal-ui=1">
+  <title>Game Title Here</title>
+  <script src="js/phaser.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script> -->
+  <script src="js/globalSettings.js"></script>
+  <script src="js/controller.js"></script>
+  <script src="js/constants.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/util/UIBlock.js"></script>
+  <script src="js/effect.js"></script>
+  <script src="js/ui/textButton.js"></script>
+  <script src="js/util/align.js"></script>
+  <script src="js/util/alignGrid.js"></script>
+  <script src="js/util/mediaManager.js"></script>
+  <script src="js/circleTimer.js"></script>
+  <script src="js/scenes/sceneMain.js"></script>
+  <script src="js/scenes/sceneOver.js"></script>
+  <script src="js/scenes/sceneLoad.js"></script>
+  <script src="js/scenes/sceneTitle.js"></script>
+  <script src="js/scenes/sceneSettings.js"></script>
+  <script src="js/scenes/sceneInstructions.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      /* height: 100%; */
+      /* background-color: lightgray; */
+      /* height: 100vh; */
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+    }
+
+    #game-container {
+      /* esse aspect-ratio é referente ao tamanho do canvas 1360 / 740 */
+      /* aspect-ratio: auto 1360 / 740; */
+      aspect-ratio: auto 480 / 640;
+      width: 100vw;
+      height: 98vh;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      max-width: 1360px !important;
+      max-height: 740px !important;
+    }
+  </style>
+</head>
+
+<body>
+  <section id="game-container">
+
+  </section>
+
+</body>
+
+</html>
