@@ -6,7 +6,8 @@ window.onload = function () {
   //   isMobile = navigator.userAgent.indexOf("Tablet");
   // }
   var w = 480;
-  var h = 640;
+  // var h = 640;
+  var h = 750;
 
   // if (isMobile != -1) {
   //   w = window.innerWidth;

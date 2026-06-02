@@ -6,18 +6,34 @@ class SceneMain extends Phaser.Scene {
 
   }
   create() {
+    // paleta
+    // verde -> #2be714
+    // rosa -> #ee348c
+    // roxo -> #5e00a7
+
     //////////// variaveis /////////////
     // grupo de flechas
     this.arrowGroup = this.physics.add.group();
     // grupo de blocos
     this.blockGroup = this.physics.add.group();
-    // velocidade do target
-    this.speed = 100;
+    // fases de velocidade: velocidade fixa por faixa de score
+    this.phases = [
+      { minScore: 0, speed: 130 },
+      { minScore: 6, speed: 170 },
+      { minScore: 11, speed: 200 },
+      { minScore: 16, speed: 250 },
+    ];
+    this.speed = 100; // velocidade da cabeça e blocos
     this.arrowCount = 100;
     this.arrowsShot = 0;
     // life do demon
-    this.targetLife = 2;
+    this.targetLife = 22;
+    this.targetLifeMax = this.targetLife;
+    this.isDead = false;
     this.score = 0;
+
+    // velocidade do prjétil
+    this.arrowSpeed = -400;
     ////////////////////////////////////
 
     //BG
@@ -35,6 +51,8 @@ class SceneMain extends Phaser.Scene {
     // FLASH (o flash é renderizado sem opacidade, ela só setado pra 1 quando acaba o jogo)
     this.flash = this.physics.add.sprite(0, 0, "flash-sprites-2");
     this.flash.setOrigin(0, 0);
+    this.flash.displayWidth = game.config.width;
+    this.flash.displayHeight = game.config.height;
     this.flash.alpha = 0;
 
     // gerencia as camadas do jogo
@@ -75,6 +93,7 @@ class SceneMain extends Phaser.Scene {
       frameRate: 30,
       repeat: 20,
     });
+    this.flash.on('animationcomplete', () => { this.flash.alpha = 0; });
 
     // dá play na animação
     this.target.play('blink');
@@ -98,9 +117,14 @@ class SceneMain extends Phaser.Scene {
     this.arrowIcon.scaleY = this.arrowIcon.scaleX;
     this.aGrid.placeAtIndex(99, this.arrowIcon);
 
-    this.scoreText = this.add.text(0, 0, "0/0", { color: "#000000", fontSize: 30 });
-    this.scoreText.setOrigin(0.5, 0.5);
-    this.aGrid.placeAtIndex(108, this.scoreText);
+    // barra de life da cabeça
+    const barW = game.config.width * 0.55;
+    const barH = 14;
+    const barX = game.config.width / 2 - barW / 2;
+    const barY = 10;
+    this.lifeBarBg = this.add.rectangle(barX, barY, barW, barH, 0xec358d).setOrigin(0, 0);
+    this.lifeBar = this.add.rectangle(barX, barY, barW, barH, 0x2be714).setOrigin(0, 0);
+    this.lifeBarMaxW = barW;
 
     this.setColliders();
   };
@@ -120,18 +144,28 @@ class SceneMain extends Phaser.Scene {
     const block = this.physics.add.sprite(0, 0, "block-sprites-bg", spriteFrame);
     block.displayWidth = 50;
     block.displayHeight = block.displayWidth;
+    block.blockSpeed = this.speed + 20; // velocidade fixada no momento da criação
     this.blockGroup.add(block);
     this.aGrid.placeAtIndex(pos, block);
-    block.setVelocityX(this.speed);
+    block.setVelocityX(block.blockSpeed);
     block.setImmovable();
   };
 
-  updateText = () => {
-    this.scoreText.setText(`${this.score}/${this.arrowsShot}`)
+  updateLifeBar = () => {
+    const pct = this.targetLife / this.targetLifeMax;
+    this.lifeBar.width = this.lifeBarMaxW * pct;
   };
 
   hitBlock = (arrow, block) => {
     arrow.destroy();
+    this.tweens.add({
+      targets: block,
+      alpha: 0,
+      duration: 50,
+      yoyo: true,
+      repeat: 1,
+      onComplete: () => { block.alpha = 1; },
+    });
   };
 
   restoreBlinkAnimation = () => {
@@ -144,23 +178,50 @@ class SceneMain extends Phaser.Scene {
     // this.target.stop('blink');
     this.target.play('hit');
 
-    this.time.addEvent({ delay: 300, callback: this.restoreBlinkAnimation, callbackScope: this, loop: false });
+    this.time.addEvent({ delay: 600, callback: this.restoreBlinkAnimation, callbackScope: this, loop: false });
+
+    // tint rosa leve ao ser acertado
+    this.target.setTint(0xec358d);
+    this.time.addEvent({
+      delay: 200,
+      callback: () => {
+        this.target.clearTint();
+      },
+      callbackScope: this,
+    });
+
+    // tremida no sprite
+    const ox = this.target.x;
+    this.tweens.add({
+      targets: this.target,
+      x: { from: ox - 4, to: ox + 4 },
+      duration: 20,
+      yoyo: true,
+      repeat: 2,
+      onComplete: () => { this.target.x = ox; },
+    });
 
     arrow.destroy();
     this.targetLife -= 1;
     this.score += 1;
-    this.speed += 10;
-    this.updateText();
 
-    if (this.score === 10) {
-      this.addBlock(50, 0);
+    const phase = this.phases.filter(p => this.score >= p.minScore).pop();
+    this.speed = phase.speed;
+
+    this.updateLifeBar();
+
+    if (this.score === 3) {
+      this.addBlock(55, 0);
     }
 
-    if (this.score === 20) {
-      this.addBlock(68, 2);
+    if (this.score === 8) {
+      this.addBlock(70, 2);
     }
 
-    console.log("target speed: ", this.target.body.velocity)
+    if (this.score === 16) {
+      this.addBlock(85, 3);
+    }
+
     if (this.target.body.velocity.x < 0) {
       this.target.setVelocityX(-this.speed);
     }
@@ -170,6 +231,7 @@ class SceneMain extends Phaser.Scene {
   };
 
   addArrow = (pointer) => {
+    if (this.arrowGroup.getLength() > 0) return;
     this.arrowCount -= 1;
     this.arrowsShot += 1;
     this.arrowCountText.setText(this.arrowCount);
@@ -177,15 +239,18 @@ class SceneMain extends Phaser.Scene {
     // const arrow = this.add.rectangle(0, 0, 20, 70, 0xfff000)
     Align.scaleToGameW(arrow, 0.02);
     this.arrowGroup.add(arrow);
-    this.aGrid.placeAtIndex(93, arrow);
+    this.aGrid.placeAtIndex(104, arrow);
     arrow.x = pointer.x;
-    arrow.setVelocityY(-250);
-    this.updateText();
+    arrow.setVelocityY(this.arrowSpeed);
+    this.updateLifeBar();
   }
 
   update() {
     // pro fundo subir infinitamente
-    this.back.tilePositionY -= 1;
+    this.cameras.main.setBackgroundColor('#fff');
+    this.back.tilePositionY -= 5;
+    this.back.setAlpha(0.4);
+
 
     // para alvo inverter a direcao quando toca a parede
     if (this.target.x > game.config.width) {
@@ -207,16 +272,17 @@ class SceneMain extends Phaser.Scene {
     this.blockGroup.children.iterate((child) => {
       if (child) {
         if (child.x < 0) {
-          child.setVelocityX(this.speed);
+          child.setVelocityX(child.blockSpeed);
         }
         if (child.x > game.config.width) {
-          child.setVelocityX(-this.speed);
+          child.setVelocityX(-child.blockSpeed);
         }
       }
     });
 
     // quando o alvo é destruído
-    if (this.targetLife < 0) {
+    if (this.targetLife <= 0 && !this.isDead) {
+      this.isDead = true;
       console.log("FIM!")
 
       // para movimento do target
@@ -234,7 +300,7 @@ class SceneMain extends Phaser.Scene {
       }
       this.target.play("eternalHit");
       // console.log("anims: ",this.anims.anims.entries);
-      this.time.addEvent({ delay: 2100, callback: () => {this.target.alpha = 0}, callbackScope: this, loop: false });
+      this.time.addEvent({ delay: 2100, callback: () => { this.target.alpha = 0 }, callbackScope: this, loop: false });
       // console.log("anims: ", this.anims.anims.entries.hit.paused = true);
 
       // Desativa o grupo de flechas
@@ -244,6 +310,7 @@ class SceneMain extends Phaser.Scene {
       this.flash.play("flash");
       this.targetLife = 0;
       console.log(this.targetLife)
+      // this.flash.alpha = 0;
     }
 
     // FIM UPDATE
