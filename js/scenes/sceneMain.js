@@ -34,6 +34,9 @@ class SceneMain extends Phaser.Scene {
 
     // velocidade do prjétil
     this.arrowSpeed = -400;
+
+    // a margem quando a cabeça toca em cada parede
+    this.wallMargin = 40;
     ////////////////////////////////////
 
     //BG
@@ -45,7 +48,7 @@ class SceneMain extends Phaser.Scene {
     // this.background = this.add.rectangle(0, 0, game.config.width, game.config.height, 0xE6FFE1);
     // this.background.setOrigin(0, 0);
 
-    // TARGET
+    // TARGET, a cabeça
     this.target = this.physics.add.sprite(0, 0, "demon-sprites");
 
     // FLASH (o flash é renderizado sem opacidade, ela só setado pra 1 quando acaba o jogo)
@@ -253,11 +256,11 @@ class SceneMain extends Phaser.Scene {
 
 
     // para alvo inverter a direcao quando toca a parede
-    if (this.target.x > game.config.width) {
+    if (this.target.x > game.config.width - this.wallMargin) {
       this.target.setVelocityX(-this.speed);
     }
 
-    if (this.target.x < 0) {
+    if (this.target.x < this.wallMargin) {
       this.target.setVelocityX(this.speed);
     }
 
