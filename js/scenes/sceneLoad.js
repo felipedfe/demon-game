@@ -31,6 +31,9 @@ class SceneLoad extends Phaser.Scene {
     //
     //
     //
+    this.load.audio("mask-hit", "sound/mask-hit.m4a");
+    this.load.audio("block-hit", "sound/block-hit.m4a");
+    this.load.audio("bell", "sound/bell.mp3");
     /* this.load.audio("right", "audio/right.wav");
      this.load.audio("wrong", "audio/wrong.wav");
      this.load.audio("levelUp", "audio/levelUp.wav");

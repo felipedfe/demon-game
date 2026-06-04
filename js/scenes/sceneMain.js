@@ -161,6 +161,7 @@ class SceneMain extends Phaser.Scene {
 
   hitBlock = (arrow, block) => {
     arrow.destroy();
+    this.sound.play('block-hit', { volume: 0.3 });
     this.tweens.add({
       targets: block,
       alpha: 0,
@@ -180,6 +181,7 @@ class SceneMain extends Phaser.Scene {
   hitTarget = (target, arrow) => {
     // this.target.stop('blink');
     this.target.play('hit');
+    this.sound.play('mask-hit', { volume: 0.3 });
 
     this.time.addEvent({ delay: 600, callback: this.restoreBlinkAnimation, callbackScope: this, loop: false });
 
@@ -286,6 +288,7 @@ class SceneMain extends Phaser.Scene {
     // quando o alvo é destruído
     if (this.targetLife <= 0 && !this.isDead) {
       this.isDead = true;
+      this.sound.play('bell', { volume: 0.8 });
       console.log("FIM!")
 
       // para movimento do target
