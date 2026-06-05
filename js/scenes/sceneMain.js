@@ -27,16 +27,17 @@ class SceneMain extends Phaser.Scene {
     this.arrowCount = 100;
     this.arrowsShot = 0;
     // life do demon
-    this.targetLife = 22;
+    this.targetLife = 2;
     this.targetLifeMax = this.targetLife;
     this.isDead = false;
     this.score = 0;
 
-    // velocidade do prjétil
-    this.arrowSpeed = -400;
+    // velocidade do prjétil, quanto menor mais rápida
+    this.arrowSpeed = -420;
 
     // a margem quando a cabeça toca em cada parede
     this.wallMargin = 40;
+
     ////////////////////////////////////
 
     //BG
@@ -130,6 +131,9 @@ class SceneMain extends Phaser.Scene {
     this.lifeBarMaxW = barW;
 
     this.setColliders();
+
+    global.mediaManager.restore(this);
+
   };
   ///////////////////// FIM DE CREATE /////////////////////
   ///////////////////// FIM DE CREATE /////////////////////
@@ -223,7 +227,7 @@ class SceneMain extends Phaser.Scene {
       this.addBlock(70, 2);
     }
 
-    if (this.score === 16) {
+    if (this.score === 13) {
       this.addBlock(85, 3);
     }
 
@@ -289,6 +293,8 @@ class SceneMain extends Phaser.Scene {
     if (this.targetLife <= 0 && !this.isDead) {
       this.isDead = true;
       this.sound.play('bell', { volume: 0.8 });
+      this.sound.play('explosion', { volume: 1 });
+      global.mediaManager.fadeOut(this);
       console.log("FIM!")
 
       // para movimento do target
@@ -307,7 +313,6 @@ class SceneMain extends Phaser.Scene {
       this.target.play("eternalHit");
       // console.log("anims: ",this.anims.anims.entries);
       this.time.addEvent({ delay: 2100, callback: () => { this.target.alpha = 0 }, callbackScope: this, loop: false });
-      // console.log("anims: ", this.anims.anims.entries.hit.paused = true);
 
       // Desativa o grupo de flechas
       this.input.off("pointerdown", this.addArrow);
@@ -315,8 +320,38 @@ class SceneMain extends Phaser.Scene {
       this.flash.alpha = 1;
       this.flash.play("flash");
       this.targetLife = 0;
-      console.log(this.targetLife)
-      // this.flash.alpha = 0;
+
+      // esconde UI após a animação de morte
+      this.time.addEvent({
+        delay: 2000,
+        callbackScope: this,
+        callback: () => {
+          this.lifeBar.setVisible(false);
+          this.lifeBarBg.setVisible(false);
+          this.arrowCountText.setVisible(false);
+          this.arrowIcon.setVisible(false);
+          this.blockGroup.children.iterate(b => b && b.setVisible(false));
+
+          const accuracy = this.arrowsShot > 0
+            ? Math.round((this.score / this.arrowsShot) * 100)
+            : 0;
+
+          const style = { color: '#ffffff', fontSize: 28, fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 };
+          const label = this.add.text(game.config.width / 2, game.config.height / 2 - 20, 'accuracy', style);
+          label.setOrigin(0.5);
+
+          const pctStyle = { color: '#2be714', fontSize: 52, fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 };
+          const pct = this.add.text(game.config.width / 2, game.config.height / 2 + 30, `${accuracy}%`, pctStyle);
+          pct.setOrigin(0.5);
+
+          const btn = this.add.image(game.config.width / 2, game.config.height / 2 + 110, 'btnPlayAgain');
+          Align.scaleToGameW(btn, 0.45);
+          btn.setInteractive({ useHandCursor: true });
+          btn.on('pointerdown', () => {
+            this.scene.restart();
+          });
+        },
+      });
     }
 
     // FIM UPDATE

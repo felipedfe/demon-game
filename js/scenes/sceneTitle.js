@@ -1,69 +1,29 @@
 class SceneTitle extends Phaser.Scene {
-    constructor() {
-        super('SceneTitle');
-    }
-    preload() {
-        
-    }
-    create() {
-       
-        this.back = this.add.image(0, 0, "titleBack");
-        this.back.setOrigin(0, 0);
-        this.back.displayWidth = game.config.width;
-        this.back.displayHeight = game.config.height;
-        this.aGrid = new AlignGrid({
-            scene: this,
-            rows: 11,
-            cols: 11
-        });
-      //  this.aGrid.showNumbers();
-       
-        //
-        //
-        //
-        this.titleText = this.add.text(0, 0, global.settings.gameTitle, {
-            fontSize: game.config.width / 10,
-            color: "#ff0000"
-        });
-        //
-        //
-        this.btnStart = new TextButton({
-            scene: this,
-            key: "green",
-            event: global.constants.START_GAME,
-            params: this.scene,
-            text: "Start Game",
-            scale: .35,
-            textScale: 30,
-            textColor: '#000000'
-        });
-        Align.center(this.btnStart);
-        //
-        //
-        //
-        this.btnInstr = new TextButton({
-            scene: this,
-            key: "blue",
-            event: global.constants.SHOW_INSTR,
-            params: this.scene,
-            text: "How to Play",
-            scale: .35,
-            textScale: 30,
-            textColor: '#000000'
-        });
-        this.aGrid.placeAtIndex(35, this.btnInstr);
-        this.btnSettings = new TextButton({
-            scene: this,
-            key: "orange",
-            event: global.constants.SHOW_SETTINGS,
-            params: this.scene,
-            text: "Settings",
-            scale: .35,
-            textScale: 30,
-            textColor: '#000000'
-        });
-        this.aGrid.placeAtIndex(85, this.btnSettings);
+  constructor() {
+    super('SceneTitle');
+  }
+  preload() {}
+  create() {
+    this.back = this.add.image(0, 0, "titleBack");
+    this.back.setOrigin(0, 0);
+    this.back.displayWidth = game.config.width;
+    this.back.displayHeight = game.config.height;
 
+    const cx = game.config.width / 2;
+    const cy = game.config.height / 2;
 
-    }
+    this.add.text(cx, cy - 120, 'DEMON\nGAME', {
+      fontSize: 64,
+      fontStyle: 'bold',
+      color: '#ee348c',
+      stroke: '#000000',
+      strokeThickness: 6,
+      align: 'center',
+    }).setOrigin(0.5);
+
+    const btn = this.add.image(cx, cy + 80, 'btnStart');
+    Align.scaleToGameW(btn, 0.45);
+    btn.setInteractive({ useHandCursor: true });
+    btn.on('pointerdown', () => this.scene.start('SceneMain'));
+  }
 }

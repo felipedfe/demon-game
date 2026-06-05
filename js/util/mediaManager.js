@@ -1,24 +1,24 @@
 class MediaManager {
-    constructor(config) {
-        this.scene = config.scene;
+  constructor(config) {
+    this.scene = config.scene;
+    this.music = null;
+    this.musicVolume = 0.35;
+  }
+
+  playMusic(key) {
+    this.music = this.scene.sound.add(key, { loop: true, volume: this.musicVolume });
+    if (this.scene.sound.locked) {
+      this.scene.sound.once('unlocked', () => this.music.play());
+    } else {
+      this.music.play();
     }
-    playSound(key) {
-        if (mt.model.sfxOn == true) {
-            var sound = this.scene.sound.add(key);
-            sound.play();
-        }
-    }
-    setBackground(key)
-    {
-    	if (mt.model.musicOn==true)
-    	{
-    		this.background=this.scene.sound.add(key,{volume:.5,loop:true});
-    		this.background.play();
-    	}
-    }
-    stopMusic()
-    {
-    	this.background.stop();
-    	this.background.destroy();
-    }
+  }
+
+  fadeOut(scene, duration = 1500) {
+    scene.tweens.add({ targets: this.music, volume: 0.2, duration });
+  }
+
+  restore(scene, duration = 0) {
+    scene.tweens.add({ targets: this.music, volume: this.musicVolume, duration });
+  }
 }

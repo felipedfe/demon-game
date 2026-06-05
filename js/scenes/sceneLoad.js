@@ -31,9 +31,12 @@ class SceneLoad extends Phaser.Scene {
     //
     //
     //
+    this.load.image("btnPlayAgain", "images/btnPlayAgain.png");
     this.load.audio("mask-hit", "sound/mask-hit.m4a");
-    this.load.audio("block-hit", "sound/block-hit.m4a");
+    this.load.audio("block-hit", "sound/block-hit-3.mp3");
     this.load.audio("bell", "sound/bell.mp3");
+    this.load.audio("back-music", "sound/back-music-4.ogg");
+    this.load.audio("explosion", "sound/explosion.mp3");
     /* this.load.audio("right", "audio/right.wav");
      this.load.audio("wrong", "audio/wrong.wav");
      this.load.audio("levelUp", "audio/levelUp.wav");
@@ -45,7 +48,8 @@ class SceneLoad extends Phaser.Scene {
     global.mediaManager = new MediaManager({
       scene: this
     });
-    this.scene.start("SceneMain");
+    global.mediaManager.playMusic('back-music');
+    this.scene.start("SceneTitle");
   }
   showProgress(prog) {
     var per = Math.floor((prog / 1) * 100);
