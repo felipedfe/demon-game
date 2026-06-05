@@ -27,7 +27,7 @@ class SceneMain extends Phaser.Scene {
     this.arrowCount = 100;
     this.arrowsShot = 0;
     // life do demon
-    this.targetLife = 2;
+    this.targetLife = 20;
     this.targetLifeMax = this.targetLife;
     this.isDead = false;
     this.score = 0;
