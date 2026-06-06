@@ -11,13 +11,13 @@ class SceneLoad extends Phaser.Scene {
     Align.center(this.progText);
     Effect.preload(this, 7);
     this.load.on('progress', this.showProgress, this);
-    this.load.image("btnStart", "images/btnStart.png");
+    this.load.image("btnStart", "images/btnStart2.png");
     this.load.image("titleBack", "images/titleBack.jpg");
-    this.load.image("blue", "images/buttons/blue.png");
-    this.load.image("red", "images/buttons/red.png");
-    this.load.image("orange", "images/buttons/orange.png");
-    this.load.image("green", "images/buttons/green.png");
-    this.load.image("sample", "images/sample.png");
+    // this.load.image("blue", "images/buttons/blue.png");
+    // this.load.image("red", "images/buttons/red.png");
+    // this.load.image("orange", "images/buttons/orange.png");
+    // this.load.image("green", "images/buttons/green.png");
+    // this.load.image("sample", "images/sample.png");
     this.load.image("arrow", "images/arrow.png");
     this.load.image("target", "images/target.png");
     this.load.image("back", "images/back2.png");
@@ -31,7 +31,7 @@ class SceneLoad extends Phaser.Scene {
     //
     //
     //
-    this.load.image("btnPlayAgain", "images/btnPlayAgain.png");
+    this.load.image("btnPlayAgain", "images/btnPlayAgain2.png");
     this.load.audio("mask-hit", "sound/mask-hit.m4a");
     this.load.audio("block-hit", "sound/block-hit-3.mp3");
     this.load.audio("bell", "sound/bell.mp3");

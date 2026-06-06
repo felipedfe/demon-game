@@ -35,7 +35,10 @@ window.onload = function () {
   };
   global = {};
   global.settings = new GlobalSettings();
-  game = new Phaser.Game(config);
-  global.game = game;
   global.constants = new Constants();
+
+  document.fonts.load("1em 'Bebas Neue'").then(() => {
+    game = new Phaser.Game(config);
+    global.game = game;
+  });
 }

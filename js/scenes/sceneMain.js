@@ -45,6 +45,7 @@ class SceneMain extends Phaser.Scene {
     this.back.displayWidth = game.config.width;
     this.back.displayHeight = game.config.height;
     this.back.setOrigin(0, 0);
+    this.back.setAlpha(0.4);
 
     // this.background = this.add.rectangle(0, 0, game.config.width, game.config.height, 0xE6FFE1);
     // this.background.setOrigin(0, 0);
@@ -223,11 +224,11 @@ class SceneMain extends Phaser.Scene {
       this.addBlock(55, 0);
     }
 
-    if (this.score === 8) {
+    if (this.score === 7) {
       this.addBlock(70, 2);
     }
 
-    if (this.score === 13) {
+    if (this.score === 11) {
       this.addBlock(85, 3);
     }
 
@@ -258,8 +259,6 @@ class SceneMain extends Phaser.Scene {
     // pro fundo subir infinitamente
     this.cameras.main.setBackgroundColor('#fff');
     this.back.tilePositionY -= 5;
-    this.back.setAlpha(0.4);
-
 
     // para alvo inverter a direcao quando toca a parede
     if (this.target.x > game.config.width - this.wallMargin) {
@@ -336,20 +335,22 @@ class SceneMain extends Phaser.Scene {
             ? Math.round((this.score / this.arrowsShot) * 100)
             : 0;
 
-          const style = { color: '#ffffff', fontSize: 28, fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 };
-          const label = this.add.text(game.config.width / 2, game.config.height / 2 - 20, 'accuracy', style);
-          label.setOrigin(0.5);
+          const cx = game.config.width / 2;
+          const cy = game.config.height / 2;
+          const container = this.add.container(cx, cy - 80);
 
-          const pctStyle = { color: '#2be714', fontSize: 52, fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 };
-          const pct = this.add.text(game.config.width / 2, game.config.height / 2 + 30, `${accuracy}%`, pctStyle);
-          pct.setOrigin(0.5);
+          const style = { fontFamily: "'Bebas Neue'", color: '#5e00a7', fontSize: 80, fontStyle: 'bold' };
+          const label = this.add.text(0, -80, 'ACCURACY', style).setOrigin(0.5);
 
-          const btn = this.add.image(game.config.width / 2, game.config.height / 2 + 110, 'btnPlayAgain');
+          const pctStyle = { fontFamily: "'Bebas Neue'", color: '#ee348c', fontSize: 140, fontStyle: 'bold' };
+          const pct = this.add.text(0, 30, `${accuracy}%`, pctStyle).setOrigin(0.5);
+
+          const btn = this.add.image(0, 170, 'btnPlayAgain');
           Align.scaleToGameW(btn, 0.45);
           btn.setInteractive({ useHandCursor: true });
-          btn.on('pointerdown', () => {
-            this.scene.restart();
-          });
+          btn.on('pointerdown', () => { this.scene.restart(); });
+
+          container.add([label, pct, btn]);
         },
       });
     }
