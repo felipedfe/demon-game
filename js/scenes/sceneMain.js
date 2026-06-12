@@ -24,7 +24,7 @@ class SceneMain extends Phaser.Scene {
       { minScore: 16, speed: 250 },
     ];
     this.speed = 100; // velocidade da cabeça e blocos
-    this.arrowCount = 100;
+    this.arrowCount = 40;
     this.arrowsShot = 0;
     // life do demon
     this.targetLife = 20;
@@ -114,13 +114,18 @@ class SceneMain extends Phaser.Scene {
     // adiciona flecha
     this.input.on("pointerdown", this.addArrow);
 
-    this.arrowCountText = this.add.text(0, 0, this.arrowCount, { color: "#000000", fontSize: 30 });
+    this.arrowCountText = this.add.text(0, 0, this.arrowCount, { 
+      color: "#000000", 
+      fontSize: 30,
+      fontFamily: "'Bebas Neue'",
+      color: '#5e00a7'
+    });
     this.arrowCountText.setOrigin(0.5, 0.5);
-    this.aGrid.placeAtIndex(100, this.arrowCountText);
+    this.aGrid.placeAtIndex(111, this.arrowCountText);
     this.arrowIcon = this.add.image(0, 0, "arrow");
     this.arrowIcon.displayWidth = 10;
     this.arrowIcon.scaleY = this.arrowIcon.scaleX;
-    this.aGrid.placeAtIndex(99, this.arrowIcon);
+    this.aGrid.placeAtIndex(110, this.arrowIcon);
 
     // barra de life da cabeça
     const barW = game.config.width * 0.55;
