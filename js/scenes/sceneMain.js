@@ -19,7 +19,7 @@ class SceneMain extends Phaser.Scene {
     // fases de velocidade: velocidade fixa por faixa de score
     this.phases = [
       { minScore: 0, speed: 130 },
-      { minScore: 6, speed: 170 },
+      { minScore: 5, speed: 170 },
       { minScore: 11, speed: 200 },
       { minScore: 16, speed: 250 },
     ];
@@ -27,7 +27,7 @@ class SceneMain extends Phaser.Scene {
     this.arrowCount = 40;
     this.arrowsShot = 0;
     // life do demon
-    this.targetLife = 20;
+    this.targetLife = 1;
     this.targetLifeMax = this.targetLife;
     this.isDead = false;
     this.score = 0;
@@ -41,6 +41,7 @@ class SceneMain extends Phaser.Scene {
     ////////////////////////////////////
 
     //BG
+    this.cameras.main.setBackgroundColor('#fff');
     this.back = this.add.tileSprite(0, 0, 480, 640, "back");
     this.back.displayWidth = game.config.width;
     this.back.displayHeight = game.config.height;
@@ -114,6 +115,7 @@ class SceneMain extends Phaser.Scene {
     // adiciona flecha
     this.input.on("pointerdown", this.addArrow);
 
+    // HUD das flechas
     this.arrowCountText = this.add.text(0, 0, this.arrowCount, { 
       color: "#000000", 
       fontSize: 30,
@@ -225,11 +227,11 @@ class SceneMain extends Phaser.Scene {
 
     this.updateLifeBar();
 
-    if (this.score === 3) {
+    if (this.score === 2) {
       this.addBlock(55, 0);
     }
 
-    if (this.score === 7) {
+    if (this.score === 6) {
       this.addBlock(70, 2);
     }
 
@@ -262,7 +264,6 @@ class SceneMain extends Phaser.Scene {
 
   update() {
     // pro fundo subir infinitamente
-    this.cameras.main.setBackgroundColor('#fff');
     this.back.tilePositionY -= 5;
 
     // para alvo inverter a direcao quando toca a parede
@@ -325,37 +326,19 @@ class SceneMain extends Phaser.Scene {
       this.flash.play("flash");
       this.targetLife = 0;
 
-      // esconde UI após a animação de morte
       this.time.addEvent({
         delay: 2000,
         callbackScope: this,
         callback: () => {
-          this.lifeBar.setVisible(false);
-          this.lifeBarBg.setVisible(false);
-          this.arrowCountText.setVisible(false);
-          this.arrowIcon.setVisible(false);
-          this.blockGroup.children.iterate(b => b && b.setVisible(false));
-
           const accuracy = this.arrowsShot > 0
             ? Math.round((this.score / this.arrowsShot) * 100)
             : 0;
-
-          const cx = game.config.width / 2;
-          const cy = game.config.height / 2;
-          const container = this.add.container(cx, cy - 80);
-
-          const style = { fontFamily: "'Bebas Neue'", color: '#5e00a7', fontSize: 80, fontStyle: 'bold' };
-          const label = this.add.text(0, -80, 'ACCURACY', style).setOrigin(0.5);
-
-          const pctStyle = { fontFamily: "'Bebas Neue'", color: '#ee348c', fontSize: 140, fontStyle: 'bold' };
-          const pct = this.add.text(0, 30, `${accuracy}%`, pctStyle).setOrigin(0.5);
-
-          const btn = this.add.image(0, 170, 'btnPlayAgain');
-          Align.scaleToGameW(btn, 0.45);
-          btn.setInteractive({ useHandCursor: true });
-          btn.on('pointerdown', () => { this.scene.restart(); });
-
-          container.add([label, pct, btn]);
+          this.scene.start('SceneResults', {
+            accuracy,
+            arrowsUsed: this.arrowsShot,
+            nextScene:  'SceneStage2',
+            stageLabel: 'STAGE CLEAR',
+          });
         },
       });
     }

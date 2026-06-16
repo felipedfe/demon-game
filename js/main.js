@@ -30,6 +30,8 @@ window.onload = function () {
       SceneInstructions,
       SceneSettings,
       SceneMain,
+      SceneResults,
+      SceneStage2,
       SceneOver
     ]
   };

@@ -15,10 +15,12 @@ class MediaManager {
   }
 
   fadeOut(scene, duration = 1500) {
+    if (!this.music) return;
     scene.tweens.add({ targets: this.music, volume: 0.2, duration });
   }
 
   restore(scene, duration = 0) {
+    if (!this.music) return;
     scene.tweens.add({ targets: this.music, volume: this.musicVolume, duration });
   }
 }
