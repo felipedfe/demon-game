@@ -19,6 +19,7 @@ class SceneBase extends Phaser.Scene {
     this.back.displayHeight = game.config.height;
     this.back.setOrigin(0, 0);
     this.back.setAlpha(0.4);
+    this.back.setDepth(0);
   }
 
   createArrowHUD() {
@@ -29,11 +30,13 @@ class SceneBase extends Phaser.Scene {
     });
     this.arrowCountText.setOrigin(0.5, 0.5);
     this.aGrid.placeAtIndex(111, this.arrowCountText);
+    this.arrowCountText.setDepth(10);
 
     this.arrowIcon = this.add.image(0, 0, 'arrow');
     this.arrowIcon.displayWidth = 10;
     this.arrowIcon.scaleY = this.arrowIcon.scaleX;
     this.aGrid.placeAtIndex(110, this.arrowIcon);
+    this.arrowIcon.setDepth(10);
   }
 
   createLifeBar() {
@@ -41,8 +44,8 @@ class SceneBase extends Phaser.Scene {
     const barH = 14;
     const barX = game.config.width / 2 - barW / 2;
     const barY = 10;
-    this.lifeBarBg   = this.add.rectangle(barX, barY, barW, barH, 0xec358d).setOrigin(0, 0);
-    this.lifeBar     = this.add.rectangle(barX, barY, barW, barH, 0x2be714).setOrigin(0, 0);
+    this.lifeBarBg   = this.add.rectangle(barX, barY, barW, barH, 0xec358d).setOrigin(0, 0).setDepth(10);
+    this.lifeBar     = this.add.rectangle(barX, barY, barW, barH, 0x2be714).setOrigin(0, 0).setDepth(10);
     this.lifeBarMaxW = barW;
   }
 
@@ -58,6 +61,7 @@ class SceneBase extends Phaser.Scene {
     this.arrowCountText.setText(this.arrowCount);
     const arrow = this.physics.add.sprite(0, 0, 'arrow');
     Align.scaleToGameW(arrow, 0.02);
+    arrow.setDepth(5);
     this.arrowGroup.add(arrow);
     this.aGrid.placeAtIndex(104, arrow);
     arrow.x = pointer.x;

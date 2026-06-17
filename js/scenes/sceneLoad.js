@@ -21,6 +21,7 @@ class SceneLoad extends Phaser.Scene {
     this.load.image("arrow", "images/arrow3.png");
 
     this.load.image("back", "images/back2.png");
+    this.load.image("bola", "images/bola.png");
     this.load.image("block", "images/block.png");
     this.load.image("demon", "images/demon.png");
     this.load.spritesheet('demon-sprites', 'images/demon-sprites.png', { frameWidth: 400, frameHeight: 400 });
@@ -48,8 +49,8 @@ class SceneLoad extends Phaser.Scene {
       scene: this
     });
     // global.mediaManager.playMusic('back-music');
-    // this.scene.start("SceneTitle");
-    this.scene.start("SceneResults");
+    this.scene.start("SceneTitle");
+    // this.scene.start("SceneStage2");
   }
   showProgress(prog) {
     var per = Math.floor((prog / 1) * 100);

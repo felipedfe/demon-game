@@ -23,7 +23,8 @@ class SceneMain extends SceneBase {
     this.createBackground();
 
     // TARGET
-    this.target = this.physics.add.sprite(0, 0, "demon-sprites");
+    this.target = this.physics.add.sprite(0, 0, "demon-sprites-bg");
+    this.target.setDepth(2);
 
     // FLASH
     this.flash = this.physics.add.sprite(0, 0, "flash-sprites-2");
@@ -31,9 +32,7 @@ class SceneMain extends SceneBase {
     this.flash.displayWidth  = game.config.width;
     this.flash.displayHeight = game.config.height;
     this.flash.alpha = 0;
-
-    const layer = this.add.layer();
-    layer.add([this.back, this.flash, this.target]);
+    this.flash.setDepth(1);
 
     this.anims.create({
       key: 'blink',
@@ -86,6 +85,7 @@ class SceneMain extends SceneBase {
     block.displayWidth  = 50;
     block.displayHeight = block.displayWidth;
     block.blockSpeed    = this.speed + 20;
+    block.setDepth(3);
     this.blockGroup.add(block);
     this.aGrid.placeAtIndex(pos, block);
     block.setVelocityX(block.blockSpeed);
@@ -151,7 +151,7 @@ class SceneMain extends SceneBase {
   };
 
   update() {
-    this.back.tilePositionY -= 5;
+    this.back.tilePositionY -= 3;
 
     if (this.target.x > game.config.width - this.wallMargin) this.target.setVelocityX(-this.speed);
     if (this.target.x < this.wallMargin) this.target.setVelocityX(this.speed);

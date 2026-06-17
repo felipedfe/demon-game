@@ -36,7 +36,7 @@ class SceneTitle extends Phaser.Scene {
     const btn = this.add.image(cx, cy + 200, 'btnStart');
     Align.scaleToGameW(btn, 0.45);
     btn.setInteractive({ useHandCursor: true });
-    btn.on('pointerdown', () => this.scene.start('SceneMain'));
+    btn.on('pointerdown', () => this.scene.start('SceneStage2'));
   }
 
   update() {

@@ -4,25 +4,148 @@ class SceneStage2 extends SceneBase {
   }
 
   create() {
-    this.initSharedState({ arrowCount: 100, arrowSpeed: -350, targetLife: 22 });
+    this.wallMargin  = 40;
+    this.orbitRadius = 100;
+    this.orbitSpeed  = 0.025;
+    this.orbitAngle  = 0;
+    this.totalSlots  = 9; // X posições, 1 gap inicial
+
+    // fases de velocidade da máscara
+    this.phases = [
+      { minScore: 0,  speed: 130 },
+      { minScore: 5,  speed: 170 },
+      { minScore: 11, speed: 200 },
+      { minScore: 16, speed: 250 },
+    ];
+    this.speed = this.phases[0].speed;
+
+    // marcos de score em que uma bola da órbita desaparece
+    this.ballMilestones = [3, 6, 8, 12, 14, 16, 18, 19];
+
+    this.initSharedState({ arrowCount: 40, arrowSpeed: -420, targetLife: 18 });
     this.createBackground();
+
+    // boss
+    this.target = this.physics.add.sprite(game.config.width / 2, 130, 'demon-sprites-bg');
+    Align.scaleToGameW(this.target, 0.27);
+    this.target.setImmovable();
+    this.target.setVelocityX(this.speed);
+    this.target.setDepth(2);
+
+    // bolas de órbita
+    this.orbitGroup = this.physics.add.group();
+    this.orbitBalls = [];
+
+    // slot 0 começa como gap — cria bolas nos slots 1 a 5
+    for (let slot = 1; slot < this.totalSlots; slot++) {
+      const ball = this.physics.add.sprite(0, 0, 'bola');
+      Align.scaleToGameW(ball, 0.07);
+      ball.setImmovable();
+      ball.slotIndex = slot;
+      ball.setDepth(3);
+      this.orbitGroup.add(ball);
+      this.orbitBalls.push(ball);
+    }
+
     this.createArrowHUD();
     this.createLifeBar();
-
-    ////////////////////// Lógica do BOSS 2 //////////////////////
-
-
-
-    ////////////////////// Lógica do BOSS 2 //////////////////////
-
+    this.setColliders();
     this.input.on('pointerdown', this.addArrow);
   }
 
-  update() {
-    this.back.tilePositionY -= 1;
+  setColliders = () => {
+    this.physics.add.collider(this.target,    this.arrowGroup, this.hitTarget, null);
+    this.physics.add.collider(this.orbitGroup, this.arrowGroup, this.hitBall,   null);
+  };
 
+  hitBall = (ball, arrow) => {
+    arrow.destroy();
+    this.tweens.add({
+      targets: ball,
+      alpha: 0,
+      duration: 50,
+      yoyo: true,
+      repeat: 1,
+      onComplete: () => { ball.alpha = 1; },
+    });
+  };
+
+  hitTarget = (target, arrow) => {
+    if (this.isDead) { arrow.destroy(); return; }
+
+    arrow.destroy();
+    this.targetLife -= 1;
+    this.score += 1;
+    this.updateLifeBar();
+
+    const phase = this.phases.filter(p => this.score >= p.minScore).pop();
+    this.speed = phase.speed;
+    if (this.target.body.velocity.x < 0) this.target.setVelocityX(-this.speed);
+    if (this.target.body.velocity.x > 0) this.target.setVelocityX(this.speed);
+
+    // tint
+    this.target.setTint(0xec358d);
+    this.time.addEvent({
+      delay: 200,
+      callback: () => { this.target.clearTint(); },
+      callbackScope: this,
+    });
+
+    // shake
+    const targetXBeforeShake = this.target.x;
+    this.tweens.add({
+      targets: this.target,
+      x: { from: targetXBeforeShake - 4, to: targetXBeforeShake + 4 },
+      duration: 20,
+      yoyo: true,
+      repeat: 2,
+      onComplete: () => { this.target.x = targetXBeforeShake; },
+    });
+
+    // remove uma bola da órbita ao bater em um marco de score
+    if (this.ballMilestones.includes(this.score) && this.orbitBalls.length > 0) {
+      const removed = this.orbitBalls.pop();
+      this.tweens.add({
+        targets: removed,
+        alpha: 0,
+        duration: 300,
+        onComplete: () => { removed.destroy(); },
+      });
+    }
+  };
+
+  update() {
+    this.back.tilePositionY -= 3;
+
+    // bounce nas paredes
+    if (this.target.x > game.config.width - this.wallMargin) this.target.setVelocityX(-this.speed);
+    if (this.target.x < this.wallMargin) this.target.setVelocityX(this.speed);
+
+    // atualiza posição das bolas em órbita
+    this.orbitAngle += this.orbitSpeed;
+    this.orbitBalls.forEach((ball) => {
+      const angle = this.orbitAngle + (ball.slotIndex * ((2 * Math.PI) / this.totalSlots));
+      const x = this.target.x + Math.cos(angle) * this.orbitRadius;
+      const y = this.target.y + Math.sin(angle) * this.orbitRadius;
+      ball.body.reset(x, y);
+    });
+
+    // destrói flechas que saem pela cima
     this.arrowGroup.children.iterate((child) => {
       if (child && child.y < 0) child.destroy();
     });
+
+    // morte do boss
+    if (this.targetLife <= 0 && !this.isDead) {
+      this.isDead = true;
+      this.input.off('pointerdown', this.addArrow);
+      this.target.setVelocityX(0);
+
+      this.time.addEvent({
+        delay: 1500,
+        callbackScope: this,
+        callback: () => { this.goToResults('SceneMain', 'STAGE CLEAR'); },
+      });
+    }
   }
 }
