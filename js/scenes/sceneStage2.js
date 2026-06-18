@@ -33,11 +33,34 @@ class SceneStage2 extends SceneBase {
     this.createBackground();
 
     // boss
-    this.target = this.physics.add.sprite(game.config.width / 2, 130, 'demon-sprites-bg');
+    this.target = this.physics.add.sprite(game.config.width / 2, 130, 'boss-2-sprites-bg');
     Align.scaleToGameW(this.target, 0.27);
     this.target.setImmovable();
     this.target.setVelocityX(this.speed);
     this.target.setDepth(2);
+
+    this.anims.create({
+      key: 'blink2',
+      frames: this.anims.generateFrameNumbers('boss-2-sprites-bg', { start: 0, end: 1 }),
+      frameRate: 1,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: 'hit2',
+      frames: this.anims.generateFrameNumbers('boss-2-sprites-bg', { start: 2, end: 2 }),
+      frameRate: 1,
+      repeat: 1,
+    });
+    this.anims.create({
+      key: 'eternalHit2',
+      frames: this.anims.generateFrameNumbers('boss-2-sprites-bg', { start: 2, end: 2 }),
+      frameRate: 1,
+      repeat: 10,
+    });
+    this.target.play('blink2');
+
+    // FLASH (efeito de tela ao morrer)
+    this.createFlash();
 
     // bolas de órbita
     this.orbitGroup = this.physics.add.group();
@@ -57,7 +80,12 @@ class SceneStage2 extends SceneBase {
     this.createArrowHUD();
     this.createLifeBar();
     this.setColliders();
-    this.input.on('pointerdown', this.addArrow);
+
+    global.mediaManager.restore(this);
+
+    this.showStageIntro(2, () => {
+      this.input.on('pointerdown', this.addArrow);
+    });
   }
 
   setColliders = () => {
@@ -67,6 +95,7 @@ class SceneStage2 extends SceneBase {
 
   hitBall = (ball, arrow) => {
     arrow.destroy();
+    this.playBlockHitSound();
     this.tweens.add({
       targets: ball,
       alpha: 0,
@@ -77,10 +106,18 @@ class SceneStage2 extends SceneBase {
     });
   };
 
+  restoreBlinkAnimation = () => {
+    this.target.play('blink2');
+  };
+
   hitTarget = (target, arrow) => {
     if (this.isDead) { arrow.destroy(); return; }
 
+    this.target.play('hit2');
+    this.time.addEvent({ delay: 600, callback: this.restoreBlinkAnimation, callbackScope: this, loop: false });
+
     arrow.destroy();
+    this.playMaskHitSound();
     this.targetLife -= 1;
     this.score += 1;
     this.updateLifeBar();
@@ -169,13 +206,18 @@ class SceneStage2 extends SceneBase {
     // morte do boss
     if (this.targetLife <= 0 && !this.isDead) {
       this.isDead = true;
+      this.playDeathEffects();
+
       this.input.off('pointerdown', this.addArrow);
       this.target.setVelocityX(0);
+      if (this.anims.anims.entries.blink2) this.anims.anims.entries.blink2.destroy();
+      this.target.play('eternalHit2');
+      this.time.addEvent({ delay: 2100, callback: () => { this.target.alpha = 0; }, callbackScope: this, loop: false });
 
       this.time.addEvent({
-        delay: 1500,
+        delay: 2000,
         callbackScope: this,
-        callback: () => { this.goToResults('SceneMain', 'STAGE CLEAR'); },
+        callback: () => { this.goToResults('SceneMain', 'STAGE CLEAR', true); },
       });
     }
   }

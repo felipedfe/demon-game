@@ -21,17 +21,19 @@ class SceneLoad extends Phaser.Scene {
     this.load.image("arrow", "images/arrow3.png");
 
     this.load.image("back", "images/back2.png");
-    this.load.image("bola", "images/bola-2.png");
+    this.load.image("bola", "images/bola-4.png");
     this.load.image("block", "images/block.png");
     this.load.image("demon", "images/demon.png");
     this.load.spritesheet('demon-sprites', 'images/demon-sprites.png', { frameWidth: 400, frameHeight: 400 });
     this.load.spritesheet('demon-sprites-bg', 'images/demon-sprites-bg.png', { frameWidth: 400, frameHeight: 400 });
+    this.load.spritesheet('boss-2-sprites-bg', 'images/boss-2-sprites-bg.png', { frameWidth: 399, frameHeight: 515 });
     this.load.spritesheet('block-sprites-bg', 'images/block-sprites-bg.png', { frameWidth: 200, frameHeight: 200 });
     this.load.spritesheet('flash-sprites-2', 'images/flash-sprites-2.png', { frameWidth: 480, frameHeight: 640 });
     //
     //
     //
-    this.load.image("btnPlayAgain", "images/btnPlayAgain2.png");  
+    this.load.image("btnPlayAgain", "images/btnPlayAgain2.png");
+    this.load.image("btnNext", "images/btnNext.png");
     this.load.audio("mask-hit", "sound/mask-hit.m4a");
     this.load.audio("block-hit", "sound/block-hit-3.mp3");
     this.load.audio("bell", "sound/bell.mp3");
@@ -48,7 +50,7 @@ class SceneLoad extends Phaser.Scene {
     global.mediaManager = new MediaManager({
       scene: this
     });
-    // global.mediaManager.playMusic('back-music');
+    global.mediaManager.playMusic('back-music');
     this.scene.start("SceneTitle");
     // this.scene.start("SceneStage2");
   }

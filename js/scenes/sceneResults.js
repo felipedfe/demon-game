@@ -8,6 +8,7 @@ class SceneResults extends Phaser.Scene {
     this.arrowsUsed = data.arrowsUsed || 0;
     this.nextScene = data.nextScene || 'SceneMain';
     this.stageLabel = data.stageLabel || 'STAGE CLEAR';
+    this.isFinalStage = data.isFinalStage || false;
   }
 
   create() {
@@ -64,7 +65,8 @@ class SceneResults extends Phaser.Scene {
     // const arrowStyle = { fontFamily: "'Bebas Neue'", color: '#5e00a7', fontSize: 40 };
     // this.add.text(cx, cy + 110, `ARROWS USED: ${this.arrowsUsed}`, arrowStyle).setOrigin(0.5);
 
-    const btn = this.add.image(cx, cy + 200, 'btnPlayAgain');
+    const btnKey = this.isFinalStage ? 'btnPlayAgain' : 'btnNext';
+    const btn = this.add.image(cx, cy + 200, btnKey);
     Align.scaleToGameW(btn, 0.45);
     btn.setInteractive({ useHandCursor: true });
     btn.on('pointerdown', () => { this.scene.start(this.nextScene); });

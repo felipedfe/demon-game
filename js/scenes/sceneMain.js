@@ -19,7 +19,7 @@ class SceneMain extends SceneBase {
     this.speed      = 100;
     this.wallMargin = 40;
 
-    this.initSharedState({ arrowCount: 40, arrowSpeed: -420, targetLife: 1 });
+    this.initSharedState({ arrowCount: 40, arrowSpeed: -420, targetLife: 18 });
     this.createBackground();
 
     // TARGET
@@ -27,12 +27,7 @@ class SceneMain extends SceneBase {
     this.target.setDepth(2);
 
     // FLASH
-    this.flash = this.physics.add.sprite(0, 0, "flash-sprites-2");
-    this.flash.setOrigin(0, 0);
-    this.flash.displayWidth  = game.config.width;
-    this.flash.displayHeight = game.config.height;
-    this.flash.alpha = 0;
-    this.flash.setDepth(1);
+    this.createFlash();
 
     this.anims.create({
       key: 'blink',
@@ -52,13 +47,6 @@ class SceneMain extends SceneBase {
       frameRate: 1,
       repeat: 10,
     });
-    this.anims.create({
-      key: 'flash',
-      frames: this.anims.generateFrameNumbers('flash-sprites-2', { start: 0, end: 2 }),
-      frameRate: 30,
-      repeat: 20,
-    });
-    this.flash.on('animationcomplete', () => { this.flash.alpha = 0; });
 
     this.target.play('blink');
     Align.scaleToGameW(this.target, 0.27);
@@ -66,13 +54,15 @@ class SceneMain extends SceneBase {
     this.target.setImmovable();
     this.target.setVelocityX(this.speed);
 
-    this.input.on("pointerdown", this.addArrow);
-
     this.createArrowHUD();
     this.createLifeBar();
     this.setColliders();
 
     global.mediaManager.restore(this);
+
+    this.showStageIntro(1, () => {
+      this.input.on("pointerdown", this.addArrow);
+    });
   }
 
   setColliders = () => {
@@ -94,7 +84,7 @@ class SceneMain extends SceneBase {
 
   hitBlock = (arrow, block) => {
     arrow.destroy();
-    this.sound.play('block-hit', { volume: 0.3 });
+    this.playBlockHitSound();
     this.tweens.add({
       targets: block,
       alpha: 0,
@@ -112,7 +102,7 @@ class SceneMain extends SceneBase {
   hitTarget = (target, arrow) => {
     if (this.isDead) { arrow.destroy(); return; }
     this.target.play('hit');
-    this.sound.play('mask-hit', { volume: 0.3 });
+    this.playMaskHitSound();
 
     this.time.addEvent({ delay: 600, callback: this.restoreBlinkAnimation, callbackScope: this, loop: false });
 
@@ -169,9 +159,7 @@ class SceneMain extends SceneBase {
 
     if (this.targetLife <= 0 && !this.isDead) {
       this.isDead = true;
-      this.sound.play('bell', { volume: 0.8 });
-      this.sound.play('explosion', { volume: 1 });
-      global.mediaManager.fadeOut(this);
+      this.playDeathEffects();
 
       this.target.setVelocityX(0);
       if (this.anims.anims.entries.blink) this.anims.anims.entries.blink.destroy();
@@ -179,8 +167,6 @@ class SceneMain extends SceneBase {
       this.time.addEvent({ delay: 2100, callback: () => { this.target.alpha = 0; }, callbackScope: this, loop: false });
 
       this.input.off("pointerdown", this.addArrow);
-      this.flash.alpha = 1;
-      this.flash.play("flash");
       this.targetLife = 0;
 
       this.time.addEvent({
