@@ -20,7 +20,14 @@ class SceneStage2 extends SceneBase {
     this.speed = this.phases[0].speed;
 
     // marcos de score em que uma bola da órbita desaparece
-    this.ballMilestones = [3, 6, 8, 12, 14, 16, 18, 19];
+    this.ballMilestones = [3, 6, 8, 12, 15, 17, 18, 19];
+
+    // ataque de desespero: a partir desse score, as bolas restantes saem
+    // da órbita e quicam pela tela em diagonal (45°), como no Breakout
+    this.desperationScore     = 14;
+    this.desperationTriggered = false;
+    this.looseBallSpeed       = 500;
+    this.looseBalls           = [];
 
     this.initSharedState({ arrowCount: 40, arrowSpeed: -420, targetLife: 18 });
     this.createBackground();
@@ -40,10 +47,10 @@ class SceneStage2 extends SceneBase {
     for (let slot = 1; slot < this.totalSlots; slot++) {
       const ball = this.physics.add.sprite(0, 0, 'bola');
       Align.scaleToGameW(ball, 0.07);
-      ball.setImmovable();
       ball.slotIndex = slot;
       ball.setDepth(3);
       this.orbitGroup.add(ball);
+      ball.setImmovable();
       this.orbitBalls.push(ball);
     }
 
@@ -102,8 +109,10 @@ class SceneStage2 extends SceneBase {
       onComplete: () => { this.target.x = targetXBeforeShake; },
     });
 
-    // remove uma bola da órbita ao bater em um marco de score
-    if (this.ballMilestones.includes(this.score) && this.orbitBalls.length > 0) {
+    if (!this.desperationTriggered && this.score >= this.desperationScore) {
+      this.triggerDesperation();
+    } else if (this.ballMilestones.includes(this.score) && this.orbitBalls.length > 0) {
+      // remove uma bola da órbita ao bater em um marco de score
       const removed = this.orbitBalls.pop();
       this.tweens.add({
         targets: removed,
@@ -112,6 +121,20 @@ class SceneStage2 extends SceneBase {
         onComplete: () => { removed.destroy(); },
       });
     }
+  };
+
+  triggerDesperation = () => {
+    this.desperationTriggered = true;
+    this.looseBalls = this.orbitBalls;
+    this.orbitBalls = [];
+
+    this.looseBalls.forEach((ball) => {
+      const dirX = Math.random() < 0.5 ? -1 : 1;
+      const dirY = Math.random() < 0.5 ? -1 : 1;
+      // sempre 45°: componentes X e Y com a mesma magnitude
+      const v = this.looseBallSpeed / Math.SQRT2;
+      ball.setVelocity(dirX * v, dirY * v);
+    });
   };
 
   update() {
@@ -130,7 +153,15 @@ class SceneStage2 extends SceneBase {
       ball.body.reset(x, y);
     });
 
-    // destrói flechas que saem pela cima
+    // bolas soltas do ataque de desespero quicam nas bordas, mantendo o ângulo de 45°
+    this.looseBalls.forEach((ball) => {
+      if (ball.x <= 0)                  ball.setVelocityX(Math.abs(ball.body.velocity.x));
+      if (ball.x >= game.config.width)  ball.setVelocityX(-Math.abs(ball.body.velocity.x));
+      if (ball.y <= 0)                  ball.setVelocityY(Math.abs(ball.body.velocity.y));
+      if (ball.y >= game.config.height) ball.setVelocityY(-Math.abs(ball.body.velocity.y));
+    });
+
+    // destrói flechas que saem por cima
     this.arrowGroup.children.iterate((child) => {
       if (child && child.y < 0) child.destroy();
     });
